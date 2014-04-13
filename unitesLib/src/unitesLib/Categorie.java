@@ -9,8 +9,4 @@ public class Categorie {
 	public Categorie(String pNom){
 		nom = pNom;
 	}
-	
-	public void ajouterUnit(String nom, float val){
-		list.add(new Unite(nom,val));
-	}
 }
