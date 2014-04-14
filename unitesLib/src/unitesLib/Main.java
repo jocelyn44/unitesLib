@@ -68,7 +68,7 @@ public class Main {
 		float valFrom=0, valTo=0;
 		for(int i =0; i<list.size();i++){//on cherche la catégorie
 			if(list.get(i).nom.equals(cate)){
-				for (int j =0; j<list.size();j++){//on cherche les unites d'origine et de sortie
+				for (int j =0; j<list.get(i).list.size();j++){//on cherche les unites d'origine et de sortie
 					if(list.get(i).list.get(j).getNom().equals(from))
 						valFrom=list.get(i).list.get(j).getVal();
 					if(list.get(i).list.get(j).getNom().equals(to))
@@ -80,5 +80,13 @@ public class Main {
 			return (val*valFrom/valTo);
 		else 
 			return 0;
+	}
+	
+	public void ajouterUnite(String categorie, String nomUnite, float valUnite){
+		
+	}
+	
+	public void supprimerUnite(String categorie, String nomUnite){
+		
 	}
 }
