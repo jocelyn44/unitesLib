@@ -1,14 +1,14 @@
 package unitesLib;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.LinkedList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,11 +16,156 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class Main {
-	private static LinkedList<Categorie> list = new LinkedList<Categorie>();
+	public static LinkedList<Categorie> list = new LinkedList<Categorie>();
+	private String chemin; 
 	
-	public Main(String chemin){
+	public Main(String pChemin){
+		chemin = pChemin;
 		Element racineElement;
-	    Document documentXML = null;
+	    
+	    
+	    //on prend le noeud racine
+	    racineElement = getDocument().getDocumentElement();
+	    
+	    //on récupère toutes les catégories
+	    NodeList cateList = racineElement.getElementsByTagName("cate");
+	    
+	    for(int i=0;i<cateList.getLength();i++){
+	    	//pour chaque catégorie on ajoute a la liste du main
+	    	list.add(new Categorie(cateList.item(i).getAttributes().getNamedItem("nom").getTextContent()));
+	    	Element unit = (Element) cateList.item(i);
+	    	//on récupère les unités de la catégorie en cours
+	    	NodeList unitesList = unit.getElementsByTagName("unit");    	
+	    	for(int j=0;j<unitesList.getLength();j++){
+	    		//on ajoute chaque unite dans la catégorie
+	    		if(unitesList.item(j).getTextContent().contains(";")){
+	    			float coef, dec;
+	    			String[] tab = unitesList.item(j).getTextContent().split(";");
+	    			coef=Float.parseFloat(tab[0]);
+	    			dec=Float.parseFloat(tab[1]);
+	    			list.get(i).getList().add(new Unite(unitesList.item(j).getAttributes().getNamedItem("nom").getTextContent(), coef, dec));
+	    		}
+	    		else{
+	    			list.get(i).getList().add(new Unite(unitesList.item(j).getAttributes().getNamedItem("nom").getTextContent(), Float.parseFloat(unitesList.item(j).getTextContent())));
+	    		}
+	    	}
+	    }
+	}
+	
+	//fonction permettant de convertir une unité vers une autre
+	public float convert(float val, String cate, String from, String to){
+		float valFrom=0, valTo=0, decal=0;
+		for(int i =0; i<list.size();i++){//on cherche la catégorie
+			if(list.get(i).getNom().equals(cate)){
+				for (int j =0; j<list.get(i).getList().size();j++){//on cherche les unites d'origine et de sortie
+					if(list.get(i).getList().get(j).getNom().equals(from)){
+						valFrom=list.get(i).getList().get(j).getVal();
+						decal=list.get(i).getList().get(j).getDecal();
+					}
+					if(list.get(i).getList().get(j).getNom().equals(to)){
+						valTo=list.get(i).getList().get(j).getVal();
+						decal=-list.get(i).getList().get(j).getDecal();
+					}
+				}
+			}
+		}
+		if(valTo != 0 && valFrom != 0){
+			if(decal>0)//dans les cas d'un passage en degre --> farenheit le decalage est positif
+				return (val*valFrom/valTo+decal);
+			return ((val+decal)*valFrom/valTo);
+		}
+		else 
+			return 0;
+	}
+	
+	/*cette fonction permet de retourner une string contenant l'etat de la memoire*/
+	public String toXml(){
+		String res="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><jocafconverter>";
+		for(int i=0;i<list.size();i++){
+			res+="<cate nom=\""+list.get(i).getNom()+"\">";
+			for(int j=0;j<list.get(i).getList().size();j++){
+				Unite unitCourant = list.get(i).getList().get(j);
+				res+="<unit nom=\""+unitCourant.getNom()+"\">"+unitCourant.getVal();
+				res+=";"+unitCourant.getDecal();
+				res+="</unit>";
+			}
+			res+="</cate>";
+		}
+		res+="</jocafconverter>";
+		return res;
+	}
+	
+	/*Cette fonction permet d'enregistrer une string dans le fichier */
+	public void saveStrXml(String xml){
+		File fic = new File(chemin);
+		try {
+			Writer w = new FileWriter(fic);
+			w.write(xml);
+			w.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/*Cette fonction permet d'ajouter une categorie*/
+	public void ajouterCate(String nomCate){
+		list.add(new Categorie(nomCate));
+	}
+	
+	/*Cette fonction permet de supprimer une categorie*/
+	public void supCate(String nomCate){
+		for(int i=0;i<list.size();i++){
+			if(list.get(i).getNom().equals(nomCate))
+				list.remove(i);
+		}
+			
+	}
+	
+	/*Cette fonction permet d'ajouter une unite dans une categorie*/
+	public void ajouterUnite(String categorie, String nomUnite, String valUnite){
+		Unite u;
+		if(valUnite.contains(";")){
+			float coef, dec;
+			String[] tab = valUnite.split(";");
+			coef=Float.parseFloat(tab[0]);
+			dec=Float.parseFloat(tab[1]);
+			u = new Unite(nomUnite, coef, dec);
+		}
+		else
+			u = new Unite(nomUnite, Float.parseFloat(valUnite));
+		
+		boolean doublon=false;
+		boolean cateExiste = false;
+		//on ajoute l'unite a la liste
+		for (int i=0;i<list.size();i++){
+			if(list.get(i).getNom().equals(categorie)){
+				cateExiste=true;
+				//on cherche si l'unite existe pas deja
+				for(int j=0;j<list.get(i).getList().size();j++){
+					if(list.get(i).getList().get(j).getNom().equals(nomUnite)){
+						doublon=true;
+					}
+				}
+				if(!doublon)//si ce n'est pas un doublon
+					list.get(i).getList().add(u);
+				else
+					System.out.println("L'unite "+nomUnite+" ne sera pas ajoutee car une unite ayant le meme nom existe deja.");
+			}
+		}
+		if(!cateExiste)
+			System.out.println("La categorie n'existe pas, l'unite ne peut donc pas etre ajoutee");
+		
+		//on ajoute l'unite au fichier XML
+		if(!doublon && cateExiste){
+			saveStrXml(toXml());
+		}
+	}
+	
+	/*Cette fonction permet de caster le fichier XML de configuration*/
+	private Document getDocument(){
+		Document documentXML = null;
 	    
 	    // on parse le fichier de configuration
 	    try {
@@ -42,51 +187,25 @@ public class Main {
 			e.printStackTrace();
 			System.exit(0);
 		}
-	    
-	    //on prend le noeud racine
-	    racineElement = documentXML.getDocumentElement();
-	    
-	    //on récupère toutes les catégories
-	    NodeList cateList = racineElement.getElementsByTagName("cate");
-	    
-	    for(int i=0;i<cateList.getLength();i++){
-	    	//pour chaque catégorie on ajoute a la liste du main
-	    	list.add(new Categorie(cateList.item(i).getAttributes().getNamedItem("nom").getTextContent()));
-	    	Element unit = (Element) cateList.item(i);
-	    	//on récupère les unités de la catégorie en cours
-	    	NodeList unitesList = unit.getElementsByTagName("unit");    	
-	    	for(int j=0;j<unitesList.getLength();j++){
-	    		//on ajoute chaque unite dans la catégorie
-	    		list.get(i).list.add(new Unite(unitesList.item(j).getAttributes().getNamedItem("nom").getTextContent(), Float.parseFloat(unitesList.item(j).getTextContent())));
-	    		System.out.println(unitesList.item(j).getAttributes().getNamedItem("nom").getTextContent()+" "+ Float.parseFloat(unitesList.item(j).getTextContent()));
-	    	}
-	    }
+	    return documentXML;
 	}
 	
-	//fonction permettant de convertir une unité vers une autre
-	public float convert(float val, String cate, String from, String to){
-		float valFrom=0, valTo=0;
-		for(int i =0; i<list.size();i++){//on cherche la catégorie
-			if(list.get(i).nom.equals(cate)){
-				for (int j =0; j<list.get(i).list.size();j++){//on cherche les unites d'origine et de sortie
-					if(list.get(i).list.get(j).getNom().equals(from))
-						valFrom=list.get(i).list.get(j).getVal();
-					if(list.get(i).list.get(j).getNom().equals(to))
-						valTo=list.get(i).list.get(j).getVal();
+	/*Cette fonction permet de supprimer une unite*/
+	public void supprimerUnite(String categorie, String nomUnite){
+		boolean supOk=false;
+		for(int i=0;i<list.size();i++){
+			if(list.get(i).getNom().equals(categorie)){
+				LinkedList<Unite> listUnit = list.get(i).getList();
+				for(int j=0;j<listUnit.size();j++){
+					if(listUnit.get(j).getNom().equals(nomUnite)){
+						listUnit.remove(j);
+						supOk=true;
+					}
 				}
 			}
 		}
-		if(valTo != 0 && valFrom != 0)
-			return (val*valFrom/valTo);
-		else 
-			return 0;
-	}
-	
-	public void ajouterUnite(String categorie, String nomUnite, float valUnite){
-		
-	}
-	
-	public void supprimerUnite(String categorie, String nomUnite){
-		
+		if(!supOk)
+			System.out.println("L'unite n'a pas pu etre supprimee.");
+		saveStrXml(toXml());//sauveFicXml(docXml);
 	}
 }

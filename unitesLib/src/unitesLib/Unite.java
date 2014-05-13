@@ -2,13 +2,29 @@ package unitesLib;
 
 public class Unite {
 	private String nom;
-	private float val;
-	
+	private float coef; //coefficient multiplicateur
+	private float decal; // coefficient de décallage
+
 	public Unite(String pNom, float pVal){
 		nom = pNom;
-		val=pVal;
+		coef=pVal;
+		decal=0;
+	}
+	
+	public Unite(String pNom, float pVal, float pDecal){
+		nom = pNom;
+		coef=pVal;
+		decal=pDecal;
+	}
+	
+	public float getDecal() {
+		return decal;
 	}
 
+	public void setDecal(float decal) {
+		this.decal = decal;
+	}
+	
 	public String getNom() {
 		return nom;
 	}
@@ -18,12 +34,10 @@ public class Unite {
 	}
 
 	public float getVal() {
-		return val;
+		return coef;
 	}
 
 	public void setVal(float val) {
-		this.val = val;
+		this.coef = val;
 	}
-	
-	
 }
