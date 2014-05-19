@@ -55,6 +55,10 @@ public class Main {
 	//fonction permettant de convertir une unité vers une autre
 	public float convert(float val, String cate, String from, String to){
 		float valFrom=0, valTo=0, decal=0;
+		/* context Main::convert(cate, from, to) pre
+		 * self->forAll(c:Categorie | c = cate implies(c->forAll(u:Unite | c=from)))
+		 * self->forAll(c:Categorie | c = cate implies(c->forAll(u:Unite | c=to)))
+		 */
 		for(int i =0; i<list.size();i++){//on cherche la catégorie
 			if(list.get(i).getNom().equals(cate)){
 				for (int j =0; j<list.get(i).getList().size();j++){//on cherche les unites d'origine et de sortie
@@ -109,9 +113,27 @@ public class Main {
 		
 	}
 	
+	/*Cette fonction retourne une unite en fonction de son nom*/
+	private Unite getUnit(String cate, String unite){
+		Categorie categorie=searchCate(cate);
+		if(categorie!=null)
+			return categorie.getValUnit(unite);
+		return null;
+	}
+	
 	/*Cette fonction permet d'ajouter une categorie*/
 	public void ajouterCate(String nomCate){
-		list.add(new Categorie(nomCate));
+		if(searchCate(nomCate)!=null)
+			list.add(new Categorie(nomCate));
+	}
+	
+	/*Cette fonction permet de savoir si une catégorie existe*/
+	private Categorie searchCate(String cate){
+		for(int i=0;i<list.size();i++){
+			if(list.get(i).getNom().equals(cate))
+				return list.get(i);
+		}
+		return null;
 	}
 	
 	/*Cette fonction permet de supprimer une categorie*/
@@ -125,42 +147,30 @@ public class Main {
 	
 	/*Cette fonction permet d'ajouter une unite dans une categorie*/
 	public void ajouterUnite(String categorie, String nomUnite, String valUnite){
-		Unite u;
-		if(valUnite.contains(";")){
-			float coef, dec;
-			String[] tab = valUnite.split(";");
-			coef=Float.parseFloat(tab[0]);
-			dec=Float.parseFloat(tab[1]);
-			u = new Unite(nomUnite, coef, dec);
-		}
-		else
-			u = new Unite(nomUnite, Float.parseFloat(valUnite));
+		boolean cateExiste = searchCate(categorie)!=null;
+		boolean doublon=getUnit(categorie, nomUnite)==null;
 		
-		boolean doublon=false;
-		boolean cateExiste = false;
-		//on ajoute l'unite a la liste
-		for (int i=0;i<list.size();i++){
-			if(list.get(i).getNom().equals(categorie)){
-				cateExiste=true;
-				//on cherche si l'unite existe pas deja
-				for(int j=0;j<list.get(i).getList().size();j++){
-					if(list.get(i).getList().get(j).getNom().equals(nomUnite)){
-						doublon=true;
-					}
-				}
-				if(!doublon)//si ce n'est pas un doublon
-					list.get(i).getList().add(u);
-				else
-					System.out.println("L'unite "+nomUnite+" ne sera pas ajoutee car une unite ayant le meme nom existe deja.");
-			}
-		}
 		if(!cateExiste)
 			System.out.println("La categorie n'existe pas, l'unite ne peut donc pas etre ajoutee");
-		
 		//on ajoute l'unite au fichier XML
 		if(!doublon && cateExiste){
-			saveStrXml(toXml());
+			Unite u;
+			if(valUnite.contains(";")){
+				float coef, dec;
+				String[] tab = valUnite.split(";");
+				coef=Float.parseFloat(tab[0]);
+				dec=Float.parseFloat(tab[1]);
+				u = new Unite(nomUnite, coef, dec);
+			}
+			else
+				u = new Unite(nomUnite, Float.parseFloat(valUnite));
+			Categorie cate = searchCate(categorie);
+			if(cate!=null)
+				cate.getList().add(u);
+		saveStrXml(toXml());
 		}
+		
+		
 	}
 	
 	/*Cette fonction permet de caster le fichier XML de configuration*/

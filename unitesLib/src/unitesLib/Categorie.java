@@ -25,4 +25,12 @@ public class Categorie {
 	public void setList(LinkedList<Unite> list) {
 		this.list = list;
 	}
+	
+	public Unite getValUnit(String unit){
+		for(int i=0;i<list.size();i++){
+			if(list.get(i).getNom().equals(unit))
+				return list.get(i);
+		}
+		return null;
+	}
 }
