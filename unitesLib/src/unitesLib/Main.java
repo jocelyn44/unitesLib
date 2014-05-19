@@ -52,27 +52,35 @@ public class Main {
 	    }
 	}
 	
-	//fonction permettant de convertir une unité vers une autre
+	public String convertJoli(float val, String cate, String from, String to){
+		float res=convert(val, cate, from, to);
+		return (val+" "+from+ " équivaut à : "+res+" "+to);
+	}
+	
+	//fonction permettanvt de convertir une unité vers une autre
 	public float convert(float val, String cate, String from, String to){
 		float valFrom=0, valTo=0, decal=0;
 		/* context Main::convert(cate, from, to) pre
 		 * self->forAll(c:Categorie | c = cate implies(c->forAll(u:Unite | c=from)))
 		 * self->forAll(c:Categorie | c = cate implies(c->forAll(u:Unite | c=to)))
 		 */
-		for(int i =0; i<list.size();i++){//on cherche la catégorie
-			if(list.get(i).getNom().equals(cate)){
-				for (int j =0; j<list.get(i).getList().size();j++){//on cherche les unites d'origine et de sortie
-					if(list.get(i).getList().get(j).getNom().equals(from)){
-						valFrom=list.get(i).getList().get(j).getVal();
-						decal=list.get(i).getList().get(j).getDecal();
-					}
-					if(list.get(i).getList().get(j).getNom().equals(to)){
-						valTo=list.get(i).getList().get(j).getVal();
-						decal=-list.get(i).getList().get(j).getDecal();
-					}
-				}
-			}
+		Unite uFrom= getUnit(cate, from);
+		Unite uTo =  getUnit(cate, to);
+		if(uFrom!=null){
+			valFrom=uFrom.getVal();
+			decal=uFrom.getDecal();
 		}
+		else
+			System.out.println("L'unite d'entree ("+from+") est introuvable, conversion impossible");
+			
+		if(uTo!=null){
+			valTo=uTo.getVal();
+			if(decal==0)
+				decal=-uTo.getDecal();
+		}
+		else
+			System.out.println("L'unite de destination ("+to+") est introuvable, conversion impossible");
+		
 		if(valTo != 0 && valFrom != 0){
 			if(decal>0)//dans les cas d'un passage en degre --> farenheit le decalage est positif
 				return (val*valFrom/valTo+decal);
@@ -148,7 +156,7 @@ public class Main {
 	/*Cette fonction permet d'ajouter une unite dans une categorie*/
 	public void ajouterUnite(String categorie, String nomUnite, String valUnite){
 		boolean cateExiste = searchCate(categorie)!=null;
-		boolean doublon=getUnit(categorie, nomUnite)==null;
+		boolean doublon=getUnit(categorie, nomUnite)!=null;
 		
 		if(!cateExiste)
 			System.out.println("La categorie n'existe pas, l'unite ne peut donc pas etre ajoutee");
@@ -156,6 +164,7 @@ public class Main {
 		if(!doublon && cateExiste){
 			Unite u;
 			if(valUnite.contains(";")){
+				//si on a un decalage, on separe la String
 				float coef, dec;
 				String[] tab = valUnite.split(";");
 				coef=Float.parseFloat(tab[0]);
@@ -169,8 +178,6 @@ public class Main {
 				cate.getList().add(u);
 		saveStrXml(toXml());
 		}
-		
-		
 	}
 	
 	/*Cette fonction permet de caster le fichier XML de configuration*/
@@ -203,19 +210,16 @@ public class Main {
 	/*Cette fonction permet de supprimer une unite*/
 	public void supprimerUnite(String categorie, String nomUnite){
 		boolean supOk=false;
-		for(int i=0;i<list.size();i++){
-			if(list.get(i).getNom().equals(categorie)){
-				LinkedList<Unite> listUnit = list.get(i).getList();
-				for(int j=0;j<listUnit.size();j++){
-					if(listUnit.get(j).getNom().equals(nomUnite)){
-						listUnit.remove(j);
-						supOk=true;
-					}
-				}
+		Categorie cate= searchCate(categorie);
+		LinkedList<Unite> listUnit = cate.getList();
+		for(int j=0;j<listUnit.size();j++){
+			if(listUnit.get(j).getNom().equals(nomUnite)){
+				listUnit.remove(j);
+				supOk=true;
 			}
 		}
 		if(!supOk)
 			System.out.println("L'unite n'a pas pu etre supprimee.");
-		saveStrXml(toXml());//sauveFicXml(docXml);
+		saveStrXml(toXml());
 	}
 }
