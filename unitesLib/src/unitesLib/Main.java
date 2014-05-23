@@ -27,17 +27,17 @@ public class Main {
 	    //on prend le noeud racine
 	    racineElement = getDocument().getDocumentElement();
 	    
-	    //on récupère toutes les catégories
+	    //on recupere toutes les categories
 	    NodeList cateList = racineElement.getElementsByTagName("cate");
 	    
 	    for(int i=0;i<cateList.getLength();i++){
-	    	//pour chaque catégorie on ajoute a la liste du main
+	    	//pour chaque categorie on ajoute a la liste du main
 	    	list.add(new Categorie(cateList.item(i).getAttributes().getNamedItem("nom").getTextContent()));
 	    	Element unit = (Element) cateList.item(i);
-	    	//on récupère les unités de la catégorie en cours
+	    	//on recupere les unites de la categorie en cours
 	    	NodeList unitesList = unit.getElementsByTagName("unit");    	
 	    	for(int j=0;j<unitesList.getLength();j++){
-	    		//on ajoute chaque unite dans la catégorie
+	    		//on ajoute chaque unite dans la categorie
 	    		if(unitesList.item(j).getTextContent().contains(";")){
 	    			float coef, dec;
 	    			String[] tab = unitesList.item(j).getTextContent().split(";");
@@ -52,14 +52,15 @@ public class Main {
 	    }
 	}
 	
-	public String convertJoli(float val, String cate, String from, String to){
+	public void convertJoli(float val, String cate, String from, String to){
 		float res=convert(val, cate, from, to);
-		return (val+" "+from+ " équivaut à : "+res+" "+to);
+		if(res!=0)
+			System.out.println(val+" "+from+ " equivaut à : "+res+" "+to);
 	}
 	
-	//fonction permettanvt de convertir une unité vers une autre
+	//fonction permettanvt de convertir une unite vers une autre
 	public float convert(float val, String cate, String from, String to){
-		float valFrom=0, valTo=0, decal=0;
+		float valFrom=0, valTo=0, decalFrom=0, decalTo=0;
 		/* context Main::convert(cate, from, to) pre
 		 * self->forAll(c:Categorie | c = cate implies(c->forAll(u:Unite | c=from)))
 		 * self->forAll(c:Categorie | c = cate implies(c->forAll(u:Unite | c=to)))
@@ -68,26 +69,48 @@ public class Main {
 		Unite uTo =  getUnit(cate, to);
 		if(uFrom!=null){
 			valFrom=uFrom.getVal();
-			decal=uFrom.getDecal();
+			decalFrom=uFrom.getDecal();
 		}
 		else
 			System.out.println("L'unite d'entree ("+from+") est introuvable, conversion impossible");
 			
 		if(uTo!=null){
 			valTo=uTo.getVal();
-			if(decal==0)
-				decal=-uTo.getDecal();
+			decalTo=uTo.getDecal();
 		}
 		else
 			System.out.println("L'unite de destination ("+to+") est introuvable, conversion impossible");
 		
 		if(valTo != 0 && valFrom != 0){
-			if(decal>0)//dans les cas d'un passage en degre --> farenheit le decalage est positif
-				return (val*valFrom/valTo+decal);
-			return ((val+decal)*valFrom/valTo);
+			if(decalFrom!=0 && decalTo!=0){
+				Categorie catego= searchCate(cate);
+				for(int i=0;i<catego.getList().size();i++){
+					if(catego.getList().get(i).getDecal()==0){
+						Unite uRef=catego.getList().get(i);
+						val = convert(val, cate, from, uRef.getNom());
+						return convert(val, cate, uRef.getNom(), to);
+					}
+				}
+			}
+			else if(decalFrom>0){
+				return (((val-decalFrom)*valTo)/valFrom);
+			}
+			else if(decalFrom<0){
+				return ((val*valFrom)+decalFrom/valTo);
+			}
+			else if(decalTo>0){
+				return ((val*valTo)/valFrom+decalTo);
+			}
+			else if(decalTo<0){
+				return ((val*valTo)/valFrom-decalTo);
+			}
+			else{
+				return ((val*valFrom)/valTo);
+			}
 		}
 		else 
 			return 0;
+		return 0;
 	}
 	
 	/*cette fonction permet de retourner une string contenant l'etat de la memoire*/
@@ -135,7 +158,7 @@ public class Main {
 			list.add(new Categorie(nomCate));
 	}
 	
-	/*Cette fonction permet de savoir si une catégorie existe*/
+	/*Cette fonction permet de savoir si une categorie existe*/
 	private Categorie searchCate(String cate){
 		for(int i=0;i<list.size();i++){
 			if(list.get(i).getNom().equals(cate))
