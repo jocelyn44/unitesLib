@@ -3,7 +3,7 @@ package unitesLib;
 public class Unite {
 	private String nom;
 	private float coef; //coefficient multiplicateur
-	private float decal; // coefficient de décallage
+	private float decal; // coefficient de decallage
 
 	public Unite(String pNom, float pVal){
 		nom = pNom;
