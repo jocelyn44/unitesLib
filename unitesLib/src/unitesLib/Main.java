@@ -55,7 +55,7 @@ public class Main {
 	public void convertJoli(float val, String cate, String from, String to){
 		float res=convert(val, cate, from, to);
 		if(res!=0)
-			System.out.println(val+" "+from+ " equivaut à : "+res+" "+to);
+			System.out.println(val+" "+from+ " equivaut a : "+res+" "+to);
 	}
 	
 	//fonction permettanvt de convertir une unite vers une autre
