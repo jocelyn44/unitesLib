@@ -40,7 +40,7 @@ public class Main {
 	    	for(int j=0;j<unitesList.getLength();j++){
 	    		//on ajoute chaque unite dans la categorie
 	    		if(unitesList.item(j).getTextContent().contains(";")){
-	    			float coef, dec;
+	    			double coef, dec;
 	    			String[] tab = unitesList.item(j).getTextContent().split(";");
 	    			coef=Float.parseFloat(tab[0]);
 	    			dec=Float.parseFloat(tab[1]);
@@ -70,15 +70,15 @@ public class Main {
 	}
 
 	//fonction permettant d'afficher lisiblement une conversion
-	public void convertJoli(float val, String cate, String from, String to){
-		float res=convert(val, cate, from, to);
+	public void convertJoli(double val, String cate, String from, String to){
+		double res=convert(val, cate, from, to);
 		if(res!=0)
-			System.out.println(val+" "+from+ " equivaut a : "+res+" "+to);
+			System.out.println(val+" "+from+ " equivaut a : "+Math.round(res)+" "+to);
 	}
 	
 	//fonction permettanvt de convertir une unite vers une autre
-	public float convert(float val, String cate, String from, String to){
-		float valFrom=0, valTo=0, decalFrom=0, decalTo=0;
+	public double convert(double val, String cate, String from, String to){
+		double valFrom=0, valTo=0, decalFrom=0, decalTo=0;
 		/* context Main::convert(cate, from, to) pre
 		 * self->forAll(c:Categorie | c = cate implies(c->forAll(u:Unite | c=from)))
 		 * self->forAll(c:Categorie | c = cate implies(c->forAll(u:Unite | c=to)))
@@ -206,7 +206,7 @@ public class Main {
 			Unite u;
 			if(valUnite.contains(";")){
 				//si on a un decalage, on separe la String
-				float coef, dec;
+				double coef, dec;
 				String[] tab = valUnite.split(";");
 				coef=Float.parseFloat(tab[0]);
 				dec=Float.parseFloat(tab[1]);
