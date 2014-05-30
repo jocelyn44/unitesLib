@@ -16,7 +16,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class Main {
-	public static LinkedList<Categorie> list = new LinkedList<Categorie>();
+	private static LinkedList<Categorie> list = new LinkedList<Categorie>();
 	private String chemin; 
 	
 	//Constructeur de la classe main (initialise les listes de categories / unites en fonction du fichier XML)
@@ -53,6 +53,23 @@ public class Main {
 	    }
 	}
 	
+	public static LinkedList<Categorie> getList() {
+		return list;
+	}
+
+	public static void setList(LinkedList<Categorie> list) {
+		Main.list = list;
+	}
+
+	public String getChemin() {
+		return chemin;
+	}
+
+	public void setChemin(String chemin) {
+		this.chemin = chemin;
+	}
+
+	//fonction permettant d'afficher lisiblement une conversion
 	public void convertJoli(float val, String cate, String from, String to){
 		float res=convert(val, cate, from, to);
 		if(res!=0)
@@ -155,7 +172,7 @@ public class Main {
 	
 	/*Cette fonction permet d'ajouter une categorie*/
 	public void ajouterCate(String nomCate){
-		if(searchCate(nomCate)!=null)
+		if(searchCate(nomCate)==null)
 			list.add(new Categorie(nomCate));
 	}
 	

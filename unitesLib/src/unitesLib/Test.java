@@ -64,6 +64,16 @@ public class Test {
 		
 		
 		System.out.println();
+		System.out.println("***** Tests d'ajout supression de categories *****");
+		main.ajouterCate("newCate");
+		main.ajouterUnite("newCate", "unit1", "1");
+		main.ajouterUnite("newCate", "unit2", "10");
+		main.convertJoli((float) 1, "newCate", "unit1", "unit2");
+		main.supCate("newCate");
+		main.convertJoli((float) 1, "newCate", "unit1", "unit2");
+		
+		
+		System.out.println();
 		System.out.println("***** Tests d'ajout supression d'unites *****");
 		main.ajouterUnite("distance", "newUnit", "1.07324324;12");
 		main.convertJoli((float) 1, "distance", "metre", "newUnit");
