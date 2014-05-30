@@ -5,12 +5,14 @@ public class Unite {
 	private float coef; //coefficient multiplicateur
 	private float decal; // coefficient de decallage
 
+	//constructeur sans décalage
 	public Unite(String pNom, float pVal){
 		nom = pNom;
 		coef=pVal;
 		decal=0;
 	}
 	
+	//constructeur avec décallage
 	public Unite(String pNom, float pVal, float pDecal){
 		nom = pNom;
 		coef=pVal;

@@ -19,6 +19,7 @@ public class Main {
 	public static LinkedList<Categorie> list = new LinkedList<Categorie>();
 	private String chemin; 
 	
+	//Constructeur de la classe main (initialise les listes de categories / unites en fonction du fichier XML)
 	public Main(String pChemin){
 		chemin = pChemin;
 		Element racineElement;
@@ -197,8 +198,12 @@ public class Main {
 			else
 				u = new Unite(nomUnite, Float.parseFloat(valUnite));
 			Categorie cate = searchCate(categorie);
-			if(cate!=null)
+			if(cate!=null){
 				cate.getList().add(u);
+				System.out.println("L'unite "+nomUnite+" a bien ete ajoutee");
+			}
+			else
+				System.out.println("L'unite "+nomUnite+" n'a pas pu etre ajoutee");
 		saveStrXml(toXml());
 		}
 	}
@@ -243,6 +248,8 @@ public class Main {
 		}
 		if(!supOk)
 			System.out.println("L'unite n'a pas pu etre supprimee.");
+		else
+			System.out.println("L'unite "+nomUnite+" a bien ete supprimee.");
 		saveStrXml(toXml());
 	}
 }

@@ -27,6 +27,10 @@ public class Categorie {
 	}
 	
 	public Unite getValUnit(String unit){
+		if(unit==null || unit ==""){
+			System.out.println("Veuillez passer un paramètre valide.");
+			return null;
+		}
 		for(int i=0;i<list.size();i++){
 			if(list.get(i).getNom().equals(unit))
 				return list.get(i);
