@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class Categorie {
 	private String nom;
-	public LinkedList<Unite> list = new LinkedList<Unite>();
+	private LinkedList<Unite> list = new LinkedList<Unite>();
 	
 	public Categorie(String pNom){
 		nom = pNom;
@@ -36,5 +36,9 @@ public class Categorie {
 				return list.get(i);
 		}
 		return null;
+	}
+	
+	public void addUnit(Unite unit){
+		this.list.add(unit);
 	}
 }

@@ -44,10 +44,10 @@ public class Main {
 	    			String[] tab = unitesList.item(j).getTextContent().split(";");
 	    			coef=Float.parseFloat(tab[0]);
 	    			dec=Float.parseFloat(tab[1]);
-	    			list.get(i).getList().add(new Unite(unitesList.item(j).getAttributes().getNamedItem("nom").getTextContent(), coef, dec));
+	    			list.get(i).addUnit(new Unite(unitesList.item(j).getAttributes().getNamedItem("nom").getTextContent(), coef, dec));
 	    		}
 	    		else{
-	    			list.get(i).getList().add(new Unite(unitesList.item(j).getAttributes().getNamedItem("nom").getTextContent(), Float.parseFloat(unitesList.item(j).getTextContent())));
+	    			list.get(i).addUnit(new Unite(unitesList.item(j).getAttributes().getNamedItem("nom").getTextContent(), Float.parseFloat(unitesList.item(j).getTextContent())));
 	    		}
 	    	}
 	    }
@@ -199,7 +199,7 @@ public class Main {
 				u = new Unite(nomUnite, Float.parseFloat(valUnite));
 			Categorie cate = searchCate(categorie);
 			if(cate!=null){
-				cate.getList().add(u);
+				cate.addUnit(u);
 				System.out.println("L'unite "+nomUnite+" a bien ete ajoutee");
 			}
 			else
